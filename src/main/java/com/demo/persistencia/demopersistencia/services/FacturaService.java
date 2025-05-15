@@ -8,25 +8,69 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.demo.persistencia.demopersistencia.dto.DetalleFacturaRequest;
 import com.demo.persistencia.demopersistencia.dto.FacturaDTO;
-//import com.demo.persistencia.demopersistencia.entidades.DetalleFactura;
+import com.demo.persistencia.demopersistencia.dto.FacturaRequest;
+import com.demo.persistencia.demopersistencia.entidades.Cliente;
+import com.demo.persistencia.demopersistencia.entidades.DetalleFactura;
 import com.demo.persistencia.demopersistencia.entidades.Factura;
-//import com.demo.persistencia.demopersistencia.repositorio.DetalleFacturaRepository;
+import com.demo.persistencia.demopersistencia.entidades.Producto;
+import com.demo.persistencia.demopersistencia.repositorio.ClienteRepository;
 import com.demo.persistencia.demopersistencia.repositorio.FacturaCustomRepository;
+import com.demo.persistencia.demopersistencia.repositorio.FacturaRepository;
+import com.demo.persistencia.demopersistencia.repositorio.ProductoRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class FacturaService {
 
     @Autowired
-    private FacturaCustomRepository facturaRepository;
+    private FacturaRepository facturaRepo;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private ProductoRepository productoRepository;
+
+    @Autowired
+    private FacturaCustomRepository facturaCustomRepo;
+
+    @Transactional
+    public void registrarFacturaCompleta(FacturaRequest facturaRequest) {
+        Cliente cliente = clienteRepository.findById(facturaRequest.getClienteId())
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        Factura factura = new Factura();
+        factura.setCliente(cliente);
+        factura.setFechaFactura(facturaRequest.getFechaFactura());
+        factura.setTotal(facturaRequest.getTotal());
+
+        List<DetalleFactura> detalles = new ArrayList<>();
+
+        for (DetalleFacturaRequest d : facturaRequest.getDetalles()) {
+            Producto producto = productoRepository.findById(d.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado (ID: " + d.getProductoId() + ")"));
+
+            DetalleFactura detalle = new DetalleFactura();
+            detalle.setFactura(factura); // Relación bidireccional importante
+            detalle.setProducto(producto);
+            detalle.setCantidad(d.getCantidad());
+            detalle.setPrecioUnitario(d.getPrecioUnitario());
+
+            detalles.add(detalle);
+        }
+
+        // Establecer los detalles en la factura
+        factura.setDetalles(detalles);
+
+        // Guardar la factura y en cascada los detalles
+        facturaRepo.save(factura);
+    }
 
     public List<FacturaDTO> getFacturasCliente(Long clienteId) {
-
-        System.out.println("LOG-ingresa antes del repositorio");
-        List<Object[]> results = facturaRepository.getFacturasCliente(clienteId);
-
-        System.out.println("LOG-ingresa despues del repositorio");
-
+        List<Object[]> results = facturaCustomRepo.getFacturasCliente(clienteId);
         List<FacturaDTO> facturas = new ArrayList<>();
 
         for (Object[] row : results) {
@@ -41,32 +85,5 @@ public class FacturaService {
         }
 
         return facturas;
-    }
-
-    // @Transactional
-    /*
-     * public void registrarFactura(Factura factura, List<DetalleFactura> detalles)
-     * {
-     * 
-     * Factura facturaGuardada = facturaRepository.save(factura);
-     * for (DetalleFactura detalle : detalles) {
-     * detalle.setFactura(facturaGuardada);
-     * detalleFacturaRepository.save(detalle);
-     * }
-     * }
-     */
-
-    public Factura guardarFactura(Factura factura) {
-        if (factura == null) {
-            throw new IllegalArgumentException("La factura no puede ser nula");
-        }
-        return facturaRepository.save(factura);
-    }
-
-    public List<Factura> obtenerTodasLasFacturas() {
-        return facturaRepository.findAll();
-    }
-
-
-
+}
 }

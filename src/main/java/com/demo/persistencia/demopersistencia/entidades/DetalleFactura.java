@@ -22,6 +22,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DetalleFactura {
 
+  
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "detalle_id")

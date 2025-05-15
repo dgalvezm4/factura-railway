@@ -3,7 +3,7 @@ package com.demo.persistencia.demopersistencia.entidades;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Factura {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "factura_id")
@@ -46,7 +47,7 @@ public class Factura {
     @Column(name = "total")
     private BigDecimal total;
     
-    @OneToMany(mappedBy = "factura")
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleFactura> detalles;
     
 }
