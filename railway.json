@@ -1,4 +1,6 @@
 {
-    "build": "chmod +x mvnw && ./mvnw clean package -DskipTests",
-    "start": "java -jar target/demo-persistencia-0.0.1-SNAPSHOT.jar"
-  }
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "start": "java -jar target/demo-persistencia-0.0.1-SNAPSHOT.jar"
+}
