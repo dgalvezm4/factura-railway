@@ -1,9 +1,9 @@
 {
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "chmod +x mvnw && ./mvnw clean package -DskipTests"
-  },
-  "start": {
-    "cmd": "java -jar target/demo-persistencia-0.0.1-SNAPSHOT.jar"
-  }
+    "build": {
+        "builder": "NIXPACKS",
+        "buildCommand": "chmod +x mvnw && ./mvnw clean package -DskipTests"
+    },
+    "start": {
+        "cmd": "java -jar target/demo-persistencia-0.0.1-SNAPSHOT.jar"
+    }
 }
